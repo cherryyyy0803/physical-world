@@ -1,3 +1,5 @@
+import './env.js'; // 必须放在最前面：.env 要在读 process.env 的模块之前加载
+
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import {
