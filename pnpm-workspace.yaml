@@ -1,0 +1,7 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# pnpm 10+ 默认不执行依赖的构建脚本，vite/vitest 依赖 esbuild，需要显式放行
+onlyBuiltDependencies:
+  - esbuild

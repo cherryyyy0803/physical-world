@@ -1,0 +1,24 @@
+{
+  "name": "physical-world",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI 物理交互学习平台 — 面向高中生的游戏化物理实验 + 物理学家 AI 伴学",
+  "packageManager": "pnpm@12.23.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:web": "pnpm --filter @pw/web dev",
+    "dev:server": "pnpm --filter @pw/server dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}
