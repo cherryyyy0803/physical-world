@@ -1,4 +1,4 @@
-import type { ExperimentResult, ParamSpec, ParamValues } from '@pw/shared';
+import type { ExperimentResult, ParamSpec, ParamValues } from '@pw/contracts';
 
 /**
  * 平抛运动 —— 首版唯一需要完整实现的实验（PRD 5.10）。

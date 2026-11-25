@@ -9,13 +9,13 @@ import type {
   ParamValues,
   RunState,
   TaskPublic,
-} from '@pw/shared';
+} from '@pw/contracts';
 import {
   applyOps as applyOpsToParams,
   computeProjectileResult,
   flightTime,
   toProjectileParams,
-} from '@pw/core';
+} from '@pw/physics-core';
 import ProjectileCanvas from '../components/ProjectileCanvas';
 import PartnerDock from '../components/PartnerDock';
 import { getTasks, judgeTask, type Bootstrap } from '../api';

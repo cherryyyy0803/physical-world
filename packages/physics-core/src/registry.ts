@@ -4,7 +4,7 @@ import type {
   ExperimentResult,
   ParamSpec,
   ParamValues,
-} from '@pw/shared';
+} from '@pw/contracts';
 import { PROJECTILE_PARAMS, computeProjectileResult, toProjectileParams } from './projectile';
 
 /**

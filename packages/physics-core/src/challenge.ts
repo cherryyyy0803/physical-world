@@ -1,4 +1,4 @@
-import type { ChallengeSpec, ChallengeVerifyRequest, ChallengeVerifyResponse } from '@pw/shared';
+import type { ChallengeSpec, ChallengeVerifyRequest, ChallengeVerifyResponse } from '@pw/contracts';
 import {
   PROJECTILE_PARAMS,
   computeProjectileResult,

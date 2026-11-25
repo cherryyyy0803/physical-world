@@ -189,17 +189,17 @@ importers:
         specifier: ^5.6.3
         version: 5.9.3
 
-  apps/server:
+  apps/ai-service:
     dependencies:
       '@fastify/cors':
         specifier: ^10.0.1
         version: 10.1.0
-      '@pw/core':
+      '@pw/contracts':
         specifier: workspace:*
-        version: link:../../packages/core
-      '@pw/shared':
+        version: link:../../packages/contracts
+      '@pw/physics-core':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../../packages/physics-core
       fastify:
         specifier: ^5.2.0
         version: 5.12.8
@@ -216,12 +216,12 @@ importers:
 
   apps/web:
     dependencies:
-      '@pw/core':
+      '@pw/contracts':
         specifier: workspace:*
-        version: link:../../packages/core
-      '@pw/shared':
+        version: link:../../packages/contracts
+      '@pw/physics-core':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../../packages/physics-core
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -245,17 +245,17 @@ importers:
         specifier: ^6.0.5
         version: 6.4.6(@types/node@22.20.5)(tsx@4.23.15)
 
-  packages/core:
+  packages/contracts: {}
+
+  packages/physics-core:
     dependencies:
-      '@pw/shared':
+      '@pw/contracts':
         specifier: workspace:*
-        version: link:../shared
+        version: link:../contracts
     devDependencies:
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.5)
-
-  packages/shared: {}
 
 packages:
 

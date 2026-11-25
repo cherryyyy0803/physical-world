@@ -10,7 +10,7 @@ import {
   sampleAt,
 } from '../src/projectile';
 import { verifyChallenge } from '../src/challenge';
-import type { ChallengeSpec } from '@pw/shared';
+import type { ChallengeSpec } from '@pw/contracts';
 
 /**
  * 物理测试样例（C 的交付物之一，PRD 2 / 7）。

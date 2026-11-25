@@ -1,5 +1,5 @@
 {
-  "name": "@pw/server",
+  "name": "@pw/ai-service",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",
-    "@pw/core": "workspace:*",
-    "@pw/shared": "workspace:*",
+    "@pw/physics-core": "workspace:*",
+    "@pw/contracts": "workspace:*",
     "fastify": "^5.2.0"
   },
   "devDependencies": {

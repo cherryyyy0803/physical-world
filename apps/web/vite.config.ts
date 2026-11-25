@@ -14,6 +14,6 @@ export default defineConfig({
   },
   // 工作区内的包直接引用源码，交给 Vite 自己转译，不要预构建
   optimizeDeps: {
-    exclude: ['@pw/core', '@pw/shared'],
+    exclude: ['@pw/physics-core', '@pw/contracts'],
   },
 });

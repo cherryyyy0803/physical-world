@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { flightTime, sampleAt, trajectory } from '@pw/core';
+import { flightTime, sampleAt, trajectory } from '@pw/physics-core';
 
 interface Props {
   v0: number;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 /**
- * 平抛运动画面。只负责画，所有数值都来自 @pw/core，
+ * 平抛运动画面。只负责画，所有数值都来自 @pw/physics-core，
  * 保证画面、AI 解释、挑战判定读的是同一组参数（PRD 5.10）。
  */
 export default function ProjectileCanvas(props: Props) {

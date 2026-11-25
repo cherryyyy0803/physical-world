@@ -1,5 +1,5 @@
-import { isChallengeSolvable } from '@pw/core';
-import type { ChallengeSpec } from '@pw/shared';
+import { isChallengeSolvable } from '@pw/physics-core';
+import type { ChallengeSpec } from '@pw/contracts';
 
 /**
  * 挑战模板（PRD 5.7）。

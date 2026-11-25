@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import type { Character, CharacterId, ExperimentId } from '@pw/shared';
-import { CHARACTER_LIST, experimentsOfSubject, type SubjectId } from '@pw/shared';
+import type { Character, CharacterId, ExperimentId } from '@pw/contracts';
+import { CHARACTER_LIST, experimentsOfSubject, type SubjectId } from '@pw/contracts';
 import type { Bootstrap } from '../api';
 
 interface Props {

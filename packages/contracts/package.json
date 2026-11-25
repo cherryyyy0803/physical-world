@@ -1,5 +1,5 @@
 {
-  "name": "@pw/core",
+  "name": "@pw/contracts",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,13 +9,6 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json"
-  },
-  "dependencies": {
-    "@pw/shared": "workspace:*"
-  },
-  "devDependencies": {
-    "vitest": "^2.1.8"
   }
 }

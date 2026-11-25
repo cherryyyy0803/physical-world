@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { CharacterId, ExperimentId } from '@pw/shared';
+import type { CharacterId, ExperimentId } from '@pw/contracts';
 import { getBootstrap, type Bootstrap } from './api';
 import Home from './pages/Home';
 import Lab from './pages/Lab';

@@ -1,5 +1,5 @@
 {
-  "name": "@pw/shared",
+  "name": "@pw/physics-core",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,6 +9,13 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@pw/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
   }
 }

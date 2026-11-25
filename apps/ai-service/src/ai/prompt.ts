@@ -6,7 +6,7 @@ import {
   type ControlOp,
   type ExperimentSnapshot,
   type PartnerFeature,
-} from '@pw/shared';
+} from '@pw/contracts';
 
 /**
  * Prompt 拼装层。人物性格、知识边界、三档难度、实验事实都在这里统一注入，

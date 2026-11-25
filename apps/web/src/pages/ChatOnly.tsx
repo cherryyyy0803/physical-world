@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { AnswerLevel, CharacterId } from '@pw/shared';
+import type { AnswerLevel, CharacterId } from '@pw/contracts';
 import ChatThread from '../components/ChatThread';
 import type { Bootstrap } from '../api';
 

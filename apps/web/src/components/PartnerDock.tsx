@@ -7,7 +7,7 @@ import type {
   ControlOp,
   ExperimentSnapshot,
   PartnerFeature,
-} from '@pw/shared';
+} from '@pw/contracts';
 import { generateChallenge, verifyChallengeRequest } from '../api';
 import ChatThread from './ChatThread';
 

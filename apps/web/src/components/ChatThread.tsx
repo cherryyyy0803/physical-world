@@ -5,7 +5,7 @@ import type {
   ControlOp,
   ExperimentSnapshot,
   PartnerFeature,
-} from '@pw/shared';
+} from '@pw/contracts';
 import { parseCommandRequest, streamChatRequest } from '../api';
 
 export interface ChatItem {

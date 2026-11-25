@@ -5,8 +5,8 @@ import type {
   ExperimentSnapshot,
   ParamSpec,
   ParamValues,
-} from '@pw/shared';
-import { PROJECTILE_PARAMS, applyOps, compute } from '@pw/core';
+} from '@pw/contracts';
+import { PROJECTILE_PARAMS, applyOps, compute } from '@pw/physics-core';
 
 /**
  * 规则解析层 —— 不经过模型就能把「把初速度调到 15」变成可执行操作。

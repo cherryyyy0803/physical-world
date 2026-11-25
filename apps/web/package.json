@@ -10,8 +10,8 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@pw/core": "workspace:*",
-    "@pw/shared": "workspace:*",
+    "@pw/physics-core": "workspace:*",
+    "@pw/contracts": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

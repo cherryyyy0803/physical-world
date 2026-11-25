@@ -7,7 +7,7 @@
 ```bash
 pnpm install
 cp .env.example .env      # 可选：不填 key 也能跑，走演示模式
-pnpm dev                  # 同时起 web(5173) 和 server(8787)
+pnpm dev                  # 同时起 web(5173) 和 ai-service(8787)
 ```
 
 > 安装小坑：pnpm 10+ 默认不执行依赖的构建脚本，`pnpm-workspace.yaml` 里已经放行 esbuild；如果它仍提示 `Ignored build scripts`，跑一次 `pnpm approve-builds` 选 esbuild。
@@ -17,7 +17,7 @@ pnpm dev                  # 同时起 web(5173) 和 server(8787)
 单独起：
 
 ```bash
-pnpm dev:server           # http://localhost:8787
+pnpm dev:ai               # http://localhost:8787
 pnpm dev:web              # http://localhost:5173，/api 已代理到 8787
 pnpm test                 # 物理计算与判定的单元测试
 pnpm typecheck            # 全仓类型检查
@@ -26,17 +26,22 @@ pnpm typecheck            # 全仓类型检查
 ## 目录
 
 ```
-packages/shared    接口契约 + 人物配置 + 主题/实验元数据 + 题目（不含答案）
-packages/core      物理计算引擎、参数范围、挑战判定、可解性检查（C 的地盘）
-apps/server        Fastify：聊天 SSE、自然语言调参、判题、挑战（B 的地盘）
-apps/web           React + Vite：首页双入口、实验页、任务列表、人物面板（A 的地盘）
+packages/contracts       接口契约 + 人物配置 + 主题/实验元数据 + 题目（不含答案）
+packages/physics-core    物理计算引擎、参数范围、挑战判定、可解性检查（C 的地盘）
+apps/ai-service          Fastify：聊天 SSE、自然语言调参、判题、挑战（B 的地盘）
+  src/ai/                模型调用、prompt 拼装、自然语言 → 操作
+  src/content-private/   答案与挑战模板，只活在后端，绝不下发前端
+  src/routes/            每个能力一个路由模块，app.ts 只负责装配
+apps/web                 React + Vite：首页双入口、实验页、任务列表、人物面板（A 的地盘）
+content/                 知识库内容（人物设定、知识卡片），B 维护
+docs/                    PRD、接口文档、答辩材料
 ```
 
-**契约只有一份**：`packages/shared/src/contract.ts`。改字段＝改契约，改之前先在群里说。
+**契约只有一份**：`packages/contracts/src/contract.ts`。改字段＝改契约，改之前先在群里说。
 
-**参数范围只有一份**：`packages/core/src/projectile.ts` 的 `PROJECTILE_PARAMS`。前端滑块、后端校验、AI prompt 都读它。
+**参数范围只有一份**：`packages/physics-core/src/projectile.ts` 的 `PROJECTILE_PARAMS`。前端滑块、后端校验、AI prompt 都读它。
 
-**答案只在服务端**：`apps/server/src/data/answers.ts`。前端拿到的题目里没有正确选项（PRD §6）。
+**答案只在服务端**：`apps/ai-service/src/content-private/answers.ts`。前端拿到的题目里没有正确选项（PRD §6）。
 
 ## 已经能跑通的链路
 

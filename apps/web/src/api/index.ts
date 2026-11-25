@@ -12,7 +12,7 @@ import type {
   ParamSpec,
   Subject,
   TaskPublic,
-} from '@pw/shared';
+} from '@pw/contracts';
 
 export interface Bootstrap {
   subjects: Subject[];
