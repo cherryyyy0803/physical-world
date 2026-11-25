@@ -10,7 +10,10 @@ cp .env.example .env      # 可选：不填 key 也能跑，走演示模式
 pnpm dev                  # 同时起 web(5173) 和 ai-service(8787)
 ```
 
-> 安装小坑：pnpm 10+ 默认不执行依赖的构建脚本，`pnpm-workspace.yaml` 里已经放行 esbuild；如果它仍提示 `Ignored build scripts`，跑一次 `pnpm approve-builds` 选 esbuild。
+> 安装小坑（Windows 上真踩过，别跳过）：
+> 1. **`.npmrc` 里的 `node-linker=hoisted` 别改回去。** 默认的隔离式软链在本机会静默失败 —— `pnpm install` 显示成功，但 `node_modules` 里只有 `.bin` 和 `.pnpm`，没有任何包目录，接着 `tsc` 报一堆「找不到模块」。hoisted 用硬链代替软链，Windows / macOS 都稳。
+> 2. pnpm 10+ 默认不执行依赖的构建脚本，`pnpm-workspace.yaml` 已放行 esbuild；若仍提示 `Ignored build scripts`，跑一次 `pnpm approve-builds` 选 esbuild，或者直接 `pnpm install --ignore-scripts`（esbuild 靠 `@esbuild/win32-x64` 可选依赖也能正常工作）。
+> 3. `pnpm-lock.yaml` 已提交，第一次装完不要重新生成它。
 
 打开 http://localhost:5173 。没有 `.env` 时后端返回预置话术，前端的流式、错误重试、指令执行全部照常工作 —— 这样 A 不必等模型就能把页面联调完。
 
