@@ -10,7 +10,7 @@ cp .env.example .env      # 可选：不填 key 也能跑，走演示模式
 pnpm dev                  # 同时起 web(5173) 和 server(8787)
 ```
 
-> 两个安装小坑：① pnpm 10+ 默认不执行依赖的构建脚本，`pnpm-workspace.yaml` 里已经放行 esbuild；如果它仍提示 `Ignored build scripts`，跑一次 `pnpm approve-builds` 选 esbuild。② lockfile 没有提交，第一次 `pnpm install` 生成后自己提交一次。
+> 安装小坑：pnpm 10+ 默认不执行依赖的构建脚本，`pnpm-workspace.yaml` 里已经放行 esbuild；如果它仍提示 `Ignored build scripts`，跑一次 `pnpm approve-builds` 选 esbuild。
 
 打开 http://localhost:5173 。没有 `.env` 时后端返回预置话术，前端的流式、错误重试、指令执行全部照常工作 —— 这样 A 不必等模型就能把页面联调完。
 
