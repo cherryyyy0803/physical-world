@@ -4,11 +4,13 @@ import { getBootstrap, type Bootstrap } from './api';
 import Home from './pages/Home';
 import Lab from './pages/Lab';
 import ChatOnly from './pages/ChatOnly';
+import Discuss from './pages/Discuss';
 
 export type View =
   | { kind: 'home' }
   | { kind: 'lab'; experimentId: ExperimentId; characterId: CharacterId }
-  | { kind: 'chat'; characterId: CharacterId };
+  | { kind: 'chat'; characterId: CharacterId }
+  | { kind: 'discuss' };
 
 export default function App() {
   const [boot, setBoot] = useState<Bootstrap | null>(null);
@@ -65,6 +67,17 @@ export default function App() {
         boot={boot}
         characterId={view.characterId}
         doneTaskIds={doneTaskIds}
+        onSwitchCharacter={(characterId) => setView({ kind: 'chat', characterId })}
+        onBack={() => setView({ kind: 'home' })}
+      />
+    );
+  }
+
+  if (view.kind === 'discuss') {
+    return (
+      <Discuss
+        boot={boot}
+        doneTaskIds={doneTaskIds}
         onBack={() => setView({ kind: 'home' })}
       />
     );
@@ -74,8 +87,11 @@ export default function App() {
     <Home
       boot={boot}
       doneTaskIds={doneTaskIds}
-      onEnterLab={(experimentId, characterId) => setView({ kind: 'lab', experimentId, characterId })}
+      onEnterLab={(experimentId, characterId) =>
+        setView({ kind: 'lab', experimentId, characterId })
+      }
       onEnterChat={(characterId) => setView({ kind: 'chat', characterId })}
+      onEnterDiscuss={() => setView({ kind: 'discuss' })}
     />
   );
 }

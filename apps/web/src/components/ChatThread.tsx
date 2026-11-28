@@ -7,11 +7,11 @@ import type {
   PartnerFeature,
 } from '@pw/contracts';
 import { parseCommandRequest, streamChatRequest } from '../api';
+import { getCharacterTheme } from '../theme';
 
 export interface ChatItem {
   role: 'user' | 'assistant';
   content: string;
-  tag?: string;
   failed?: boolean;
   /** 用户原话，用于重试 */
   source?: string;
@@ -27,14 +27,18 @@ interface Props {
   getSnapshot?: () => ExperimentSnapshot | undefined;
   onOps?: (ops: ControlOp[], reply: string) => void;
   /** 点击菜单后自动发起的一轮问答 */
-  autoPrompt?: { content: string; display: string; tag: string; seq: number } | null;
+  autoPrompt?: { content: string; display: string; tag?: string; seq: number } | null;
+  /** 1v1 轻松生活化模式（隐藏难度条，使用日常开场与大头像欢迎态） */
+  casualMode?: boolean;
+  /** 实验聊天栏单行快捷提问 */
+  quickPrompts?: Array<{ label: string; text: string }>;
 }
 
-const LEVEL_LABEL: Record<AnswerLevel, string> = {
-  plain: '通俗',
-  normal: '正常',
-  expert: '专业',
-};
+const LEVELS: Array<{ key: AnswerLevel; label: string; idx: number }> = [
+  { key: 'plain', label: '通俗', idx: 0 },
+  { key: 'normal', label: '正常', idx: 1 },
+  { key: 'expert', label: '专业', idx: 2 },
+];
 
 function ChatThread({
   character,
@@ -46,7 +50,10 @@ function ChatThread({
   getSnapshot,
   onOps,
   autoPrompt,
+  casualMode = false,
+  quickPrompts,
 }: Props) {
+  const theme = getCharacterTheme(character.id);
   const [items, setItems] = useState<ChatItem[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -56,7 +63,6 @@ function ChatThread({
   const listRef = useRef<HTMLDivElement>(null);
   const lastAutoSeq = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
-  /** 与 items 同步的镜像，供发送时组装历史（setState 是异步的，闭包里的 items 会滞后） */
   const itemsRef = useRef<ChatItem[]>([]);
 
   useEffect(() => {
@@ -68,20 +74,19 @@ function ChatThread({
     if (el) el.scrollTop = el.scrollHeight;
   }, [items, busy]);
 
-  const ask = async (text: string, display?: string, tag?: string) => {
+  const ask = async (text: string, display?: string) => {
     if (busy) return;
     const before = itemsRef.current;
     const userItem: ChatItem = {
       role: 'user',
       content: display ?? text,
-      tag,
       source: text,
     };
     setItems((prev) => [...prev, userItem]);
     setInput('');
     setBusy(true);
 
-    /* 1. 先看是不是操作指令（不消耗模型额度，模型挂了也能用） */
+    /* 1. 实验模式下先尝试自然语言指令解析（不消耗模型额度） */
     const snapshot = getSnapshot?.();
     if (snapshot) {
       try {
@@ -106,7 +111,6 @@ function ChatThread({
           return;
         }
 
-        // 被拒的原因如果是「这是个问题」，就落到下面走聊天
         if (res.rejected && res.rejected.reason !== '属于提问，不是可执行指令') {
           setItems((prev) => [...prev, { role: 'assistant', content: res.reply }]);
           setBusy(false);
@@ -117,7 +121,7 @@ function ChatThread({
       }
     }
 
-    /* 2. 走模型 */
+    /* 2. 走真实流式聊天接口 */
     await runChat([...before, userItem]);
   };
 
@@ -150,7 +154,9 @@ function ChatThread({
           setItems((prev) => {
             const next = prev.slice();
             const last = next[next.length - 1];
-            if (last && last.role === 'assistant') next[next.length - 1] = { ...last, content: acc };
+            if (last && last.role === 'assistant') {
+              next[next.length - 1] = { ...last, content: acc };
+            }
             return next;
           });
         },
@@ -172,11 +178,10 @@ function ChatThread({
     }
   };
 
-  /* 菜单点击后自动触发的一轮 */
   useEffect(() => {
     if (!autoPrompt || autoPrompt.seq === lastAutoSeq.current) return;
     lastAutoSeq.current = autoPrompt.seq;
-    void ask(autoPrompt.content, autoPrompt.display, autoPrompt.tag);
+    void ask(autoPrompt.content, autoPrompt.display);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoPrompt?.seq]);
 
@@ -195,10 +200,8 @@ function ChatThread({
       });
       if (res.ok && res.ops.length > 0) {
         onOps?.(res.ops, res.reply);
-        setItems((prev) => [...prev, { role: 'assistant', content: res.reply }]);
-      } else {
-        setItems((prev) => [...prev, { role: 'assistant', content: res.reply }]);
       }
+      setItems((prev) => [...prev, { role: 'assistant', content: res.reply }]);
     } catch (e) {
       setItems((prev) => [
         ...prev,
@@ -211,64 +214,110 @@ function ChatThread({
     const lastUser = [...items].reverse().find((m) => m.role === 'user');
     if (!lastUser?.source) return;
     setItems((prev) => prev.filter((m) => !m.failed));
-    void ask(lastUser.source, lastUser.content, lastUser.tag);
+    void ask(lastUser.source, lastUser.content);
   };
 
-  return (
-    <div className="chat">
-      <div className="chat-level">
-        <span className="muted small">回答难度</span>
-        <div className="seg">
-          {(['plain', 'normal', 'expert'] as AnswerLevel[]).map((lv) => (
-            <button
-              key={lv}
-              className={level === lv ? 'on' : ''}
-              onClick={() => onLevelChange(lv)}
-            >
-              {LEVEL_LABEL[lv]}
-            </button>
-          ))}
-        </div>
-      </div>
+  const activeIdx = LEVELS.find((x) => x.key === level)?.idx ?? 1;
 
-      <div className="chat-list" ref={listRef}>
-        {items.length === 0 && (
-          <div className="chat-empty">
-            <span className="chat-empty-avatar" style={{ background: `${character.accent}1f` }}>
-              {character.avatar}
-            </span>
-            <p>
-              {character.name}在等你开口。
-              <br />
-              <span className="muted small">
-                可以问知识，也可以直接下指令，比如「把初速度调到 15」。
-              </span>
-            </p>
+  return (
+    <div className={`pw-chat ${casualMode ? 'is-casual' : ''}`}>
+      {!casualMode && (
+        <div className="pw-level-bar">
+          <span>回答风格</span>
+          <div className="pw-seg-mini">
+            <div
+              className="pw-seg-slider"
+              style={{ transform: `translateX(${activeIdx * 100}%)` }}
+            />
+            {LEVELS.map((lv) => (
+              <button
+                key={lv.key}
+                type="button"
+                className={level === lv.key ? 'active' : ''}
+                onClick={() => onLevelChange(lv.key)}
+              >
+                {lv.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className={casualMode ? 'chat1v1-stream' : 'pw-chat-messages'} ref={listRef}>
+        {items.length === 0 && casualMode && (
+          <div className="chat1v1-welcome">
+            <div className="chat1v1-welcome-avatar">
+              <img src={theme.portrait} alt={character.name} />
+            </div>
+            <h2>和{character.name}随便聊聊</h2>
+            <p>{theme.greeting}</p>
+            <div className="life-starters">
+              {theme.starters.map((st) => (
+                <button key={st} type="button" className="life-chip" onClick={() => void ask(st)}>
+                  {st}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        {items.map((m, i) => (
-          <div key={i} className={`bubble-row ${m.role}`}>
-            {m.role === 'assistant' && (
-              <span className="bubble-avatar" style={{ background: `${character.accent}1f` }}>
-                {character.avatar}
-              </span>
-            )}
-            <div className={`bubble ${m.failed ? 'failed' : ''}`}>
-              {m.tag && <span className="bubble-tag">{m.tag}</span>}
-              <span className="bubble-text">{m.content || (busy ? '…' : '')}</span>
+        {items.length === 0 && !casualMode && (
+          <div className="pw-msg-row ai">
+            <div className="pw-msg-bubble">
+              嗨！我是{character.name}。你可以滑动滑块、键盘输入数值，或者直接告诉我「把初速度调到 20」，我立刻帮你调好！
             </div>
           </div>
-        ))}
+        )}
+
+        {items.map((m, i) =>
+          casualMode ? (
+            <div key={i} className={`im-row ${m.role === 'user' ? 'user' : 'ai'}`}>
+              {m.role === 'assistant' && (
+                <div className="im-avatar">
+                  <img src={theme.portrait} alt={character.name} />
+                </div>
+              )}
+              <div className={`im-bubble ${m.failed ? 'failed' : ''}`}>
+                {m.content ? (
+                  m.content
+                ) : busy ? (
+                  <span className="typing-dots">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                ) : (
+                  ''
+                )}
+              </div>
+            </div>
+          ) : (
+            <div key={i} className={`pw-msg-row ${m.role === 'user' ? 'user' : 'ai'}`}>
+              <div className={`pw-msg-bubble ${m.failed ? 'failed' : ''}`}>
+                {m.content ? (
+                  m.content
+                ) : busy ? (
+                  <span className="typing-dots">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                ) : (
+                  ''
+                )}
+              </div>
+            </div>
+          ),
+        )}
 
         {pending && (
-          <div className="confirm-bar">
+          <div className="pw-confirm-bar">
             <span>{pending.reply}</span>
-            <div>
-              <button className="btn primary sm" onClick={confirmPending}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" className="pw-pill-btn primary" onClick={() => void confirmPending()}>
                 确认修改
               </button>
-              <button className="btn ghost sm" onClick={() => setPending(null)}>
+              <button type="button" className="pw-pill-btn" onClick={() => setPending(null)}>
                 算了
               </button>
             </div>
@@ -276,14 +325,30 @@ function ChatThread({
         )}
 
         {items.some((m) => m.failed) && (
-          <button className="link retry" onClick={retryLast}>
+          <button type="button" className="pw-text-btn" style={{ alignSelf: 'flex-start' }} onClick={retryLast}>
             重试上一次
           </button>
         )}
       </div>
 
+      {!casualMode && quickPrompts && quickPrompts.length > 0 && (
+        <div className="pw-quick-prompts">
+          {quickPrompts.map((qp) => (
+            <button
+              key={qp.label}
+              type="button"
+              className="pw-quick-chip"
+              disabled={busy}
+              onClick={() => void ask(qp.text)}
+            >
+              {qp.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       <form
-        className="chat-input"
+        className={casualMode ? 'im-composer' : 'pw-chat-input-bar'}
         onSubmit={(e) => {
           e.preventDefault();
           if (input.trim()) void ask(input.trim());
@@ -292,10 +357,17 @@ function ChatThread({
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="问点什么，或者直接下指令…"
+          placeholder={
+            casualMode ? '随便聊点什么，不一定是物理哦…' : '说「把初速度设为 20」或直接提问…'
+          }
           disabled={busy}
         />
-        <button className="btn primary sm" type="submit" disabled={busy || !input.trim()}>
+        <button
+          type="submit"
+          className={casualMode ? 'im-send-btn' : 'pw-btn pw-btn-launch pw-btn-sm'}
+          style={casualMode ? undefined : { width: 'auto', height: 34 }}
+          disabled={busy || !input.trim()}
+        >
           {busy ? '…' : '发送'}
         </button>
       </form>
